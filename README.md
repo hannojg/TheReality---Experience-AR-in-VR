@@ -1,4 +1,4 @@
-# TheReality - Experience AR in VR
+# [UE4] TheReality - Experience AR in VR
 
 ## What is this project about? 
 This should be considered rather a simulation than a game, that I created with a bunch of other people for a university project. We all had no prior knowledge (or no significant) to game development. We all challenged us to learn what was behind the horizon for us. Some of us mastered their 3D Art skills, I personally get into C++ development. 
