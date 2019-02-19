@@ -81,7 +81,7 @@ void AVRCharacter::BeginPlay()
 	// Spawn Hands //
 	LeftHand = AVRHand::Create(this, LeftTracker, EControllerHand::Left, VRHandClass);
 	RightHand = AVRHand::Create(this, RightTracker, EControllerHand::Right, VRHandClass);
-	RightHand->OnPointingEvent.AddUniqueDynamic(this, &AVRCharacter::IsHandPointing);
+	RightHand->OnPointingWidgetEvent.AddUniqueDynamic(this, &AVRCharacter::HandWidgetPointing);
 	LeftHand->PairHands(RightHand);
 	OnHandsCreated();
 }
@@ -137,7 +137,8 @@ void AVRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis(TEXT("Forward"), this, &AVRCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("Right"), this, &AVRCharacter::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("SkipAroundOwnAxis"), this, &AVRCharacter::SkipAroundOwnAxis);
-	PlayerInputComponent->BindAction(TEXT("Teleport"), EInputEvent::IE_Pressed, this, &AVRCharacter::BeginTeleport);
+	PlayerInputComponent->BindAction(TEXT("Teleport"), IE_Pressed, this, &AVRCharacter::EnableTeleporter);
+	PlayerInputComponent->BindAction(TEXT("Teleport"), IE_Released, this, &AVRCharacter::BeginTeleport);
 	PlayerInputComponent->BindAction(TEXT("GripLeft"), IE_Pressed, this, &AVRCharacter::GripPressedLeft);
 	PlayerInputComponent->BindAction(TEXT("GripLeft"), IE_Released, this, &AVRCharacter::GripReleaseLeft);
 	PlayerInputComponent->BindAction(TEXT("GripRight"), IE_Pressed, this, &AVRCharacter::GripReleasedRight);
@@ -149,9 +150,9 @@ void AVRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 }
 
-void AVRCharacter::IsHandPointing(FHitResult HitResult, bool bIsPointing)
+void AVRCharacter::HandWidgetPointing(FHitResult HitResult, bool bHitWidget)
 {
-	if (bIsPointing)
+	if (bHitWidget)
 	{
 		bIsPointingCurrently = true;
 		TArray<FVector> Path;
@@ -393,10 +394,11 @@ void AVRCharacter::MoveRight(float throttle)
 void AVRCharacter::SkipAroundOwnAxis(float throttle)
 {
 	float RotationDegree = 30;
-	//UE_LOG(LogTemp, Warning, TEXT("Controller throttle: %f"), throttle)
+
+	throttle = FMath::Clamp(throttle, -0.8f, 0.8f);
 
 	if (!bIsRotating
-		&& (throttle <= -0.8 || throttle >= 0.8))
+			&& (throttle <= -0.8 || throttle >= 0.8))
 	{
 		bIsRotating = true;
 		NewRotation = Camera->GetComponentRotation();
@@ -410,6 +412,11 @@ void AVRCharacter::SkipAroundOwnAxis(float throttle)
 		FTimerHandle Handle;
 		GetWorldTimerManager().SetTimer(Handle, this, &AVRCharacter::FinishSkipAroundOwnAxis, OwnAxisRotationFadeTime - 0.05);
 	
+	} 
+	else if (bIsRotating
+				&& (throttle > -0.2 && throttle < 0.2)) 
+	{
+		bIsRotating = false;
 	}
 
 }
@@ -419,7 +426,6 @@ void AVRCharacter::FinishSkipAroundOwnAxis()
 	VRRoot->AddLocalRotation(NewRotation);
 
 	StartFade(1, 0, OwnAxisRotationFadeTime);
-	bIsRotating = false;
 }
 
 void AVRCharacter::GripPressedLeft()
@@ -471,11 +477,12 @@ void AVRCharacter::BeginTeleport()
 	if (!DestinationMarker->IsVisible()) return;
 
 	TeleportLocation = DestinationMarker->GetComponentLocation();
-
+	
 	StartFade(0, 1, TeleportFadeTime);
 
 	FTimerHandle Handle;
 	GetWorldTimerManager().SetTimer(Handle, this, &AVRCharacter::FinishTeleport, TeleportFadeTime - 0.1);
+	DisableTeleporter();
 }
 
 void AVRCharacter::FinishTeleport()
@@ -484,6 +491,7 @@ void AVRCharacter::FinishTeleport()
 
 	SetActorLocation(TeleportLocation);
 	StartFade(1, 0, TeleportFadeTime);
+	
 }
 
 void AVRCharacter::DoBlackScreenTransition(float TimeToStayBlack, float TransitionTime)

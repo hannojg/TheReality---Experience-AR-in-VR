@@ -24,9 +24,9 @@ public:
 
 public:
 	UFUNCTION()
-		void IsHandPointing(FHitResult HitResult, bool bIsPointing);
+		void HandWidgetPointing(FHitResult HitResult, bool bHitWidget);
 
-	FPointingEvent OnPointingEvent;
+	FPointingWidgetEvent OnPointingWidgetEvent;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "VRHands")
 		void OnControllerCreated();
@@ -108,7 +108,7 @@ protected: // PROPERTIES //
 		class UStaticMeshComponent* DestinationMarkerInner;
 
 	UPROPERTY(EditDefaultsOnly, Category = "VRTeleport")
-		float TeleportFadeTime = 1;
+		float TeleportFadeTime = 0.8;
 
 	UPROPERTY(EditDefaultsOnly, Category = "VRTeleport")
 		FVector TeleportProjectionExtent = FVector(100, 100, 100);
@@ -205,6 +205,6 @@ private: // Local states
 	bool bIsRotating = false;
 	float Reach = 7.f;
 	float TimeCache = 1.f; // in use when handling DoBlackScreenTransition
-	bool bIsTeleportActivated = true;
+	bool bIsTeleportActivated = false;
 
 };

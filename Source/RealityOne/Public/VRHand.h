@@ -5,7 +5,7 @@
 #include "InputCore/Classes/InputCoreTypes.h"
 #include "VRHand.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPointingEvent, FHitResult, HitResult, bool, bIsPoiting);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPointingWidgetEvent, FHitResult, HitResult, bool, bHitWidget);
 
 UCLASS()
 class REALITYONE_API AVRHand : public AActor
@@ -13,7 +13,7 @@ class REALITYONE_API AVRHand : public AActor
 	GENERATED_BODY()
 
 public:
-	FPointingEvent OnPointingEvent;
+	FPointingWidgetEvent OnPointingWidgetEvent;
 	
 public:	
 	AVRHand();

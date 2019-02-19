@@ -44,21 +44,10 @@ void AVRHand::SetHandPosition(const EControllerHand Hand)
 	HandPosition = Hand;
 }
 
+/// This one is obsolote. It is refered to a pointing gesture.
 void AVRHand::PlayerIsPointing(bool bIsPointing)
 {
-	FHitResult HitResult = WidgetInteraction->GetLastHitResult();
-
-	if (WidgetInteraction->GetHoveredWidgetPath().IsValid())
-	{
-		OnPointingEvent.Broadcast(HitResult, bIsPointing);
-	} 
-	else
-	{
-		// This is a bit hacky: if we havn't hovered something with the widget interaction component
-		// we are simply broadcasting that we are not pointing. This could lead to logic errors or smth,
-		// just be aware of that.
-		OnPointingEvent.Broadcast(HitResult, false);
-	}
+	UE_LOG(LogTemp, Warning, TEXT("Calling playerIsPointing. This is an obsolete method!"))
 }
 
 void AVRHand::GripPressed()
@@ -112,6 +101,14 @@ void AVRHand::Tick(float DeltaTime)
 		FVector HandControllerDelta = GetActorLocation() - ClimbingStartLocation;
 		GetAttachParentActor()->AddActorWorldOffset(-HandControllerDelta);
 	}
+
+	// check whether hand is pointing at a dialogue widget
+	FHitResult HitResult = WidgetInteraction->GetLastHitResult();
+
+	OnPointingWidgetEvent.Broadcast(
+							HitResult,
+							WidgetInteraction->GetHoveredWidgetPath().IsValid()
+						);
 }
 
 void AVRHand::ActorBeginOverlap(AActor * OverlappedActor, AActor * OtherActor)
