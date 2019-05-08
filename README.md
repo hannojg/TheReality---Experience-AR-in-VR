@@ -5,6 +5,8 @@ This should be considered rather a simulation than a game, that I created with a
 
 As the deadline for this project has come closer and closer you are likely to see not best practice stuff. We are going to clean our project to go with the best practices later on. For now, it is working fine for us for presentational purposes. You can find in this project a good library for VR interaction stuff, like to show hands in VR with finger movements and grabbing and climbing components, teleporting mechanism, FOV limiters, all these kind of stuff. Feel free to use it!
 
+[![SHort teaser about the Project](https://img.youtube.com/vi/_2itYOhYSA4/0.jpg)](https://www.youtube.com/watch?v=_2itYOhYSA4)
+
 ## Prerequisites 
 If you want to build the game on your own you need to have: 
 - Unreal Engine version 4.21.1 installed
